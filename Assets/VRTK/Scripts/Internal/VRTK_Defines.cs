@@ -55,9 +55,11 @@ namespace VRTK
                                                         .ToArray();
                 string[] newSymbols = currentSymbols.Where(symbol => !symbol.StartsWith(VersionScriptingDefineSymbolPrefix, StringComparison.Ordinal))
                                                     .Concat(versionSymbols)
+#if !UNITY_5_6_1
                                                     .ToArray();
-
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, string.Join(";", newSymbols));
+                if ((int)targetGroup != 27)
+#endif
+                    PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, string.Join(";", newSymbols));
             }
         }
 #endif
