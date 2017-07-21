@@ -65,6 +65,9 @@ namespace VRTK
 
                 if (!currentSymbols.SequenceEqual(newSymbols))
                 {
+#if !UNITY_5_6_1
+                    if((int)targetGroup != 27)
+#endif
                     PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, string.Join(";", newSymbols));
                 }
             }
