@@ -152,7 +152,8 @@ namespace VRTK
         }
         private static VRTK_SDKManager _instance;
 
-        [Tooltip("If this is true then the instance of the SDK Manager won't be destroyed on every scene load.")]
+        [Tooltip("**OBSOLETE. STOP USING THIS ASAP!** If this is true then the instance of the SDK Manager won't be destroyed on every scene load.")]
+        [Obsolete("`VRTK_SDKManager.persistOnLoad` has been deprecated and will be removed in a future version of VRTK. See https://github.com/thestonefox/VRTK/issues/1316 for details.")]
         public bool persistOnLoad;
 
         [Tooltip("Determines whether the scripting define symbols required by the installed SDKs are automatically added to and removed from the player settings.")]
@@ -177,7 +178,20 @@ namespace VRTK
         /// <summary>
         /// The loaded SDK Setup. <see langword="null"/> if no setup is currently loaded.
         /// </summary>
-        public VRTK_SDKSetup loadedSetup { get; private set; }
+        public VRTK_SDKSetup loadedSetup
+        {
+            get
+            {
+                if (_loadedSetup == null && setups.Length == 1 && setups[0].isValid && setups[0].isActiveAndEnabled)
+                {
+                    _loadedSetup = setups[0];
+                }
+
+                return _loadedSetup;
+            }
+            private set { _loadedSetup = value; }
+        }
+        private VRTK_SDKSetup _loadedSetup;
         private static HashSet<VRTK_SDKInfo> _previouslyUsedSetupInfos = new HashSet<VRTK_SDKInfo>();
 
         /// <summary>
@@ -331,14 +345,20 @@ namespace VRTK
                 .ToDictionary(grouping => grouping.Key,
                               grouping => grouping.Select(info => info.description.vrDeviceName)
                                                   .Distinct()
-                                                  .Except(new[] { "None" })
                                                   .ToArray());
 
             foreach (BuildTargetGroup targetGroup in VRTK_SharedMethods.GetValidBuildTargetGroups())
             {
                 string[] deviceNames;
                 deviceNamesByTargetGroup.TryGetValue(targetGroup, out deviceNames);
+
+                int setupCount = deviceNames == null ? 0 : deviceNames.Length;
                 bool vrEnabled = deviceNames != null && deviceNames.Length > 0;
+
+                if (deviceNames != null)
+                {
+                    deviceNames = deviceNames.Except(new[] { "None" }).ToArray();
+                }
 
 #if UNITY_5_5_OR_NEWER
                 VREditor.SetVREnabledOnTargetGroup(targetGroup, vrEnabled);
@@ -346,13 +366,25 @@ namespace VRTK
                 VREditor.SetVREnabled(targetGroup, vrEnabled);
 #endif
 
+                string[] devices;
+                if (vrEnabled)
+                {
+                    devices = setupCount > 1
+                                  ? new[] { "None" }.Concat(deviceNames).ToArray()
+                                  : deviceNames;
+                }
+                else
+                {
+                    devices = new string[0];
+                }
+
 #if UNITY_5_5_OR_NEWER
                 VREditor.SetVREnabledDevicesOnTargetGroup(
 #else
                 VREditor.SetVREnabledDevices(
 #endif
                     targetGroup,
-                    vrEnabled ? new[] { "None" }.Concat(deviceNames).ToArray() : new string[0]
+                    devices
                 );
             }
         }
@@ -482,18 +514,18 @@ namespace VRTK
                 previousLoadedSetup.OnUnloaded(this);
             }
 
-            bool isDeviceAlreadyLoaded = VRSettings.enabled
-                                         && sdkSetups[0].usedVRDeviceNames.Contains(VRSettings.loadedDeviceName);
+            string loadedDeviceName = string.IsNullOrEmpty(VRSettings.loadedDeviceName) ? "None" : VRSettings.loadedDeviceName;
+            bool isDeviceAlreadyLoaded = sdkSetups[0].usedVRDeviceNames.Contains(loadedDeviceName);
             if (!isDeviceAlreadyLoaded)
             {
-                if (!tryToReinitialize && !VRSettings.enabled && !string.IsNullOrEmpty(VRSettings.loadedDeviceName))
+                if (!tryToReinitialize && !VRSettings.enabled && !string.IsNullOrEmpty(loadedDeviceName))
                 {
-                    sdkSetups = sdkSetups.Where(setup => !setup.usedVRDeviceNames.Contains(VRSettings.loadedDeviceName))
+                    sdkSetups = sdkSetups.Where(setup => !setup.usedVRDeviceNames.Contains(loadedDeviceName))
                                          .ToArray();
                 }
 
                 VRTK_SDKSetup[] missingVRDeviceSetups = sdkSetups
-                    .Where(setup => setup.usedVRDeviceNames.Except(VRSettings.supportedDevices).Any())
+                    .Where(setup => setup.usedVRDeviceNames.Except(VRSettings.supportedDevices.Concat(new[] { "None" })).Any())
                     .ToArray();
                 foreach (VRTK_SDKSetup missingVRDeviceSetup in missingVRDeviceSetups)
                 {
@@ -602,7 +634,7 @@ namespace VRTK
 
             CreateInstance();
 
-            if (autoLoadSetup)
+            if (loadedSetup == null && autoLoadSetup)
             {
                 TryLoadSDKSetupFromList();
             }
@@ -610,7 +642,9 @@ namespace VRTK
 
         private void OnDisable()
         {
+#pragma warning disable 618
             if (_instance == this && !persistOnLoad)
+#pragma warning restore 618
             {
                 UnloadSDKSetup();
             }
@@ -623,7 +657,9 @@ namespace VRTK
                 _instance = this;
                 VRTK_SDK_Bridge.InvalidateCaches();
 
+#pragma warning disable 618
                 if (persistOnLoad && Application.isPlaying)
+#pragma warning restore 618
                 {
                     DontDestroyOnLoad(gameObject);
                 }
@@ -656,8 +692,8 @@ namespace VRTK
                 UnloadSDKSetup();
 
                 const string errorMessage = "No SDK Setup from the provided list could be loaded.";
-                VRTK_Logger.Error(errorMessage);
                 OnLoadedSetupChanged(new LoadedSetupChangeEventArgs(previousLoadedSetup, null, errorMessage));
+                VRTK_Logger.Error(errorMessage);
 
                 yield break;
             }
@@ -691,8 +727,8 @@ namespace VRTK
                     UnloadSDKSetup();
 
                     errorMessage += " There are no other Setups in the provided list to try.";
-                    VRTK_Logger.Error(errorMessage);
                     OnLoadedSetupChanged(new LoadedSetupChangeEventArgs(previousLoadedSetup, null, errorMessage));
+                    VRTK_Logger.Error(errorMessage);
 
                     yield break;
                 }

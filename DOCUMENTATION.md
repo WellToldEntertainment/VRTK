@@ -745,7 +745,7 @@ The ResetDestinationPoint resets the destination point back to the default state
 
 The Pointer Direction Indicator is used to determine a given world rotation that can be used by a Destiantion Marker.
 
-The Pointer Direction Indicator can be attached to a VRTK_Pointer in the `Direction Indicator` parameter and will the be used to send rotation data when the destination marker events are emitted.
+The Pointer Direction Indicator can be attached to a VRTK_BasePointerRenderer in the `Direction Indicator` parameter and will the be used to send rotation data when the destination marker events are emitted.
 
 This can be useful for rotating the play area upon teleporting to face the user in a new direction without expecting them to physically turn in the play space.
 
@@ -6170,7 +6170,6 @@ and the method info of the method the attribute is defined on.
 
 ### Inspector Parameters
 
- * **Persist On Load:** If this is true then the instance of the SDK Manager won't be destroyed on every scene load.
  * **Auto Manage Script Defines:** Determines whether the scripting define symbols required by the installed SDKs are automatically added to and removed from the player settings.
  * **Script Alias Left Controller:** A reference to the GameObject that contains any scripts that apply to the Left Hand Controller.
  * **Script Alias Right Controller:** A reference to the GameObject that contains any scripts that apply to the Right Hand Controller.
@@ -6194,7 +6193,7 @@ and the method info of the method the attribute is defined on.
  * `public static ReadOnlyCollection<VRTK_SDKInfo> InstalledControllerSDKInfos { get private set }` - All installed controller SDK infos. This is a subset of  . It contains only those available SDK infos for which an  exists that uses the same symbol and whose associated method returns true.
  * `public static VRTK_SDKManager instance` - The singleton instance to access the SDK Manager variables from.
  * `public List<SDK_ScriptingDefineSymbolPredicateAttribute> activeScriptingDefineSymbolsWithoutSDKClasses` - The active (i.e. to be added to the  ) scripting define symbol predicate attributes that have no associated SDK classes. Default: `new List<SDK_ScriptingDefineSymbolPredicateAttribute>()`
- * `public VRTK_SDKSetup loadedSetup { get private set }` - The loaded SDK Setup.  if no setup is currently loaded.
+ * `public VRTK_SDKSetup loadedSetup` - The loaded SDK Setup.  if no setup is currently loaded.
  * `public ReadOnlyCollection<Behaviour> behavioursToToggleOnLoadedSetupChange { get private set }` - All behaviours that need toggling whenever  changes.
 
 ### Class Events

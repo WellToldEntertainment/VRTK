@@ -12,14 +12,15 @@ namespace VRTK
         /// <summary>
         /// The current version of VRTK.
         /// </summary>
-        public static readonly Version CurrentVersion = new Version(3, 2, 0);
+        public static readonly Version CurrentVersion = new Version(3, 2, 1);
 
         /// <summary>
         /// The previously known versions of VRTK.
         /// </summary>
         public static readonly Version[] PreviousVersions =
         {
-            new Version(3, 1, 0)
+            new Version(3, 1, 0),
+            new Version(3, 2, 0)
         };
 
         /// <summary>
@@ -39,6 +40,11 @@ namespace VRTK
         [InitializeOnLoadMethod]
         private static void EnsureVersionSymbolIsSet()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                return;
+            }
+
             IEnumerable<string> atLeastVersionSymbols = new[] { CurrentVersion }
                 .Concat(PreviousVersions)
                 .Select(AtLeastVersionSymbol);
@@ -55,11 +61,12 @@ namespace VRTK
                                                         .ToArray();
                 string[] newSymbols = currentSymbols.Where(symbol => !symbol.StartsWith(VersionScriptingDefineSymbolPrefix, StringComparison.Ordinal))
                                                     .Concat(versionSymbols)
-#if !UNITY_5_6_1
                                                     .ToArray();
-                if ((int)targetGroup != 27)
-#endif
+
+                if (!currentSymbols.SequenceEqual(newSymbols))
+                {
                     PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, string.Join(";", newSymbols));
+                }
             }
         }
 #endif
