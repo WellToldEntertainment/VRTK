@@ -404,11 +404,28 @@ namespace VRTK
         /// <returns>Returns true if a collision will occur on the given direction over the given maxium distance. Returns false if there is no collision about to happen.</returns>
         public virtual bool SweepCollision(Vector3 direction, float maxDistance)
         {
-            Vector3 point1 = (bodyCollider.transform.position + bodyCollider.center) + (Vector3.up * ((bodyCollider.height * 0.5f) - bodyCollider.radius));
-            Vector3 point2 = (bodyCollider.transform.position + bodyCollider.center) - (Vector3.up * ((bodyCollider.height * 0.5f) - bodyCollider.radius));
+            //Vector3 point1 = (bodyCollider.transform.position + (bodyCollider.center)) + (Vector3.up * ((bodyCollider.height * 0.5f) - bodyCollider.radius));
+            //Vector3 point2 = (bodyCollider.transform.position + (bodyCollider.center)) - (Vector3.up * ((bodyCollider.height * 0.5f) - bodyCollider.radius));
+            Vector3 point1 = bodyCollider.transform.parent.TransformPoint(bodyCollider.transform.localPosition + (bodyCollider.center)) + (Vector3.up * ((bodyCollider.height * 0.5f) - bodyCollider.radius));
+            Vector3 point2 = bodyCollider.transform.parent.TransformPoint(bodyCollider.transform.localPosition + (bodyCollider.center)) - (Vector3.up * ((bodyCollider.height * 0.5f) - bodyCollider.radius));
             RaycastHit collisionHit;
 #pragma warning disable 0618
-            return VRTK_CustomRaycast.CapsuleCast(customRaycast, point1, point2, bodyCollider.radius, direction, maxDistance, out collisionHit, layersToIgnore, QueryTriggerInteraction.Ignore);
+            var ret = VRTK_CustomRaycast.CapsuleCast(customRaycast, point1, point2, bodyCollider.radius, direction, maxDistance, out collisionHit, layersToIgnore, QueryTriggerInteraction.Ignore);
+            if (ret)
+            {
+                Debug.Log("SweepCollision Hit: " + collisionHit.collider.name);
+                Debug.DrawLine(point1, point1 + direction * maxDistance, Color.red);
+                Debug.DrawLine(point1, point1 + direction * 10f, Color.red);
+                Debug.DrawLine(point2, point2 + direction * maxDistance, Color.red);
+                Debug.DrawLine(point1, collisionHit.point, Color.magenta);
+                Debug.DrawLine(point1, (collisionHit.point - point1) * 10f, Color.cyan);
+            }
+            else
+            {
+                Debug.DrawLine(point1, point1 + direction * maxDistance, Color.blue);
+                Debug.DrawLine(point2, point2 + direction * maxDistance, Color.blue);
+            }
+            return ret;
 #pragma warning restore 0618
         }
 
