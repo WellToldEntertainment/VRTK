@@ -108,7 +108,7 @@ namespace VRTK
 
         protected virtual void OnEnable()
         {
-            headset = VRTK_DeviceFinder.HeadsetTransform();
+            headset = GameObject.FindGameObjectWithTag("PlayerTarget").transform;//VRTK_DeviceFinder.HeadsetTransform();
             if (headset != null)
             {
                 headsetColliding = false;
@@ -166,7 +166,7 @@ namespace VRTK
             headsetRigidbody.isKinematic = true;
             headsetRigidbody.useGravity = false;
 
-            Collider headsetCollider = headset.GetComponentInChildren<Collider>();
+            Collider headsetCollider = null;//headset.GetComponentInChildren<Collider>();
             if (headsetCollider == null)
             {
                 CreateHeadsetColliderContainer();
