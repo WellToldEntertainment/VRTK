@@ -147,7 +147,7 @@ namespace VRTK
         protected virtual void OnEnable()
         {
             lastGoodPositionSet = false;
-            headset = VRTK_DeviceFinder.HeadsetTransform();
+            headset = GameObject.FindGameObjectWithTag("EffectsCam").transform;//VRTK_DeviceFinder.HeadsetTransform();
             playArea = VRTK_DeviceFinder.PlayAreaTransform();
             bodyPhysics = (bodyPhysics != null ? bodyPhysics : FindObjectOfType<VRTK_BodyPhysics>());
             headsetCollision = (headsetCollision != null ? headsetCollision : GetComponentInChildren<VRTK_HeadsetCollision>());
