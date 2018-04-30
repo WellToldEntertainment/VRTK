@@ -166,7 +166,7 @@ namespace VRTK
             headsetRigidbody.isKinematic = true;
             headsetRigidbody.useGravity = false;
 
-            Collider headsetCollider = null;//headset.GetComponentInChildren<Collider>();
+            Collider headsetCollider = null;// = headset.GetComponentInChildren<Collider>();
             if (headsetCollider == null)
             {
                 CreateHeadsetColliderContainer();
