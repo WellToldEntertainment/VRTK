@@ -62,7 +62,7 @@ namespace VRTK
                     newParent = VRTK_DeviceFinder.PlayAreaTransform();
                     break;
                 case SDKObject.Headset:
-                    newParent = GameObject.FindGameObjectWithTag("EffectsCam").transform;//VRTK_DeviceFinder.HeadsetTransform();
+                    newParent = VRTK_DeviceFinder.HeadsetTransform();// GameObject.FindGameObjectWithTag("EffectsCam").transform;
                     break;
             }
 

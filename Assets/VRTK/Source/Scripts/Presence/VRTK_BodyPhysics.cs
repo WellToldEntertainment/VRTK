@@ -542,7 +542,7 @@ namespace VRTK
 
         protected virtual void SetupHeadset()
         {
-            headset = GameObject.FindGameObjectWithTag("EffectsCam").transform;//VRTK_DeviceFinder.HeadsetTransform();
+            headset = VRTK_DeviceFinder.HeadsetTransform();//GameObject.FindGameObjectWithTag("EffectsCam").transform;
             if (headset != null)
             {
                 currentStandingPosition = new Vector2(headset.position.x, headset.position.z);

@@ -1,8 +1,9 @@
 ﻿namespace VRTK
 {
     using UnityEngine;
+    using WellTold;
 
-    public class VRTK_ScreenFade : MonoBehaviour
+    public class VRTK_ScreenFade : Singleton<VRTK_ScreenFade>
     {
         public static VRTK_ScreenFade instance;
 
