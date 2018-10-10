@@ -196,7 +196,7 @@ namespace VRTK
         protected float bodyRadius = 0.15f;
         protected float leanForwardLengthAddition = 0.05f;
         protected float playAreaPositionThreshold = 0.002f;
-        protected float gravityPush = -0.001f;
+        protected float gravityPush = -1f; //Changed -0.001f to -1f
         protected int decimalPrecision = 3;
 
         protected bool isFalling = false;
@@ -376,6 +376,12 @@ namespace VRTK
         public virtual GameObject GetFootColliderContainer()
         {
             return footColliderContainer;
+        }
+
+        //WT: Added Function Get Function
+        public virtual CapsuleCollider GetFootCollider()
+        {
+            return footCollider;
         }
 
         /// <summary>
